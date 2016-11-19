@@ -20,4 +20,4 @@ npm run start
 ## Stack
 
 - Static server is built upon [Hapi](http://hapijs.com/)
-- Game engine is [Hapi](https://phaser.io/)
+- Game engine is [Phaser](https://phaser.io/)
