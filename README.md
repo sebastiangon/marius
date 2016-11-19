@@ -21,3 +21,13 @@ npm run start
 
 - Static server is built upon [Hapi](http://hapijs.com/)
 - Game engine is [Phaser](https://phaser.io/)
+
+
+### Docker setup
+
+To run the docker implementation just run the following
+```bash
+$ docker build -t marius-webserver .
+$ docker run -d -p 3000:3000 --name marius-dock marius-webserver
+```
+> After that you can go to localhost:3000 and you'll see the web server running in the docker container.
