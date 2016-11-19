@@ -22,6 +22,7 @@ npm run start
 - Static server is built upon [Hapi](http://hapijs.com/)
 - Game engine is [Phaser](https://phaser.io/)
 
+---
 
 ### Docker setup
 
