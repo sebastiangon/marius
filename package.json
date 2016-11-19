@@ -1,0 +1,20 @@
+{
+  "name": "marius",
+  "version": "0.0.1",
+  "description": "marius web server ",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "websocket",
+    "marius"
+  ],
+  "author": "maxi",
+  "license": "ISC",
+  "dependencies": {
+    "hapi": "^15.2.0",
+    "inert": "^4.0.2"
+  }
+}
