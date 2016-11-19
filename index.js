@@ -1,6 +1,8 @@
 'use strict';
 
 const Hapi = require('hapi');
+const chalk = require ('chalk');
+const log = console.log;
 
 const server = new Hapi.Server();
 server.connection({ port:3000 });
@@ -14,9 +16,12 @@ server.register(require('inert'),
 
     server.route({
       method: 'GET',
-      path: '/',
-      handler: function (req, resp) {
-        resp.file('./public/index.html');
+      path: '/{param*}',
+      handler: {
+        directory: {
+         path: 'public',
+         listing: true,
+       },
       }
     });
   }
@@ -28,6 +33,6 @@ server.start(
     if (err)
       throw err;
 
-    console.log(`Server running at: ${server.info.uri}`);
+    log(`${chalk.yellow('Marius server running at:')} ${chalk.green(server.info.uri)}`);
   }
 );
