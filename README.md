@@ -3,14 +3,14 @@ Game like Mario Bros, but with just one level where you have to earn much points
 
 ## Running server
 
-### Make Sure you have [Node](https://nodejs.org/)
+### 1 - Make Sure you have [Node](https://nodejs.org/)
 
-### Install dependencies
+### 2 - Install dependencies
 
 ```javascript
 npm install
 ```
-### Run web server
+### 3 - Run web server
 
 ```javascript
 npm run start
