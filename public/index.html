@@ -3,7 +3,49 @@
   <head>
     <meta charset="utf-8">
     <title>Marius</title>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/js/phaser.min.js"></script>
   </head>
   <body>
+    <input id="btnEmmiter" type="button" name="name" value="Emit Event">
+    <ul id="responses">
+    </ul>
+    <script type="text/javascript">
+    var game = new Phaser.Game(800, 600, Phaser.AUTO, '', { preload: preload, create: create, update: update });
+
+    function preload() {
+       game.load.image('mario', 'assets/mario.png');
+    }
+
+    function create() {
+      game.physics.startSystem(Phaser.Physics.ARCADE);
+      const player = game.add.image(32, game.world.height - 300, 'mario');
+      player.enableBody = true;
+      console.log(player);
+      // player.body.gravity.y = 300;
+
+    }
+
+    function update() {
+    }
+
+    var socket = io();
+
+    const btn = document.getElementById("btnEmmiter");
+    btn.addEventListener('click', () => {
+        console.log('ping emmited from client');
+        socket.emit('start');
+    });
+
+    socket.on('add', () => {
+      console.log('pong emited from server');
+      // const li = document.createElement('li');
+      // li.innerHTML = 'pong';
+      // const list = document.getElementById("responses");
+      // list.appendChild(li);
+    })
+
+
+    </script>
   </body>
 </html>
