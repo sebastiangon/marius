@@ -1,3 +1,7 @@
+module.exports = {
+  box:box
+}
+
 function box(id){
 
   var _id= id;

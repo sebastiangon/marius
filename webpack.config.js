@@ -9,9 +9,10 @@ module.exports = {
     path: __dirname + '/public/js',
     filename: "./app.min.js"
   },
-  presets: [
-        "es2015"
-    ],
+  loader: 'babel-loader',
+      query: {
+        presets: ['es2015']
+      },
   plugins: debug ? [] : [
     new webpack.optimize.DedupePlugin(),
     new webpack.optimize.OccurenceOrderPlugin(),
