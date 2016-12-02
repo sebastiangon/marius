@@ -14,8 +14,8 @@ module.exports = {
         presets: ['es2015']
       },
   plugins: debug ? [] : [
-    new webpack.optimize.DedupePlugin(),
-    new webpack.optimize.OccurenceOrderPlugin(),
-    new webpack.optimize.UglifyJsPlugin({ mangle: false, sourcemap: false }),
+     new webpack.optimize.DedupePlugin(),
+    // new webpack.optimize.OccurenceOrderPlugin(),
+    // new webpack.optimize.UglifyJsPlugin({ mangle: false, sourcemap: false }),
   ],
 };
