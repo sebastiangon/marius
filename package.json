@@ -4,8 +4,9 @@
   "description": "marius web server ",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start:prod": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "webpack-dev-server -d --colors --port 3000 --content-base ./public"
   },
   "keywords": [
     "websocket",
@@ -20,6 +21,12 @@
     "chalk": "^1.1.3",
     "hapi": "^15.2.0",
     "inert": "^4.0.2",
-    "webpack": "^1.13.3"
+    "webpack": "^1.13.3",
+    "webpack-dev-server": "1.3.x"
+  },
+  "devDependencies": {
+    "babel-core": "^6.18.2",
+    "babel-loader": "^6.2.8",
+    "babel-preset-es2015": "^6.18.0"
   }
 }
