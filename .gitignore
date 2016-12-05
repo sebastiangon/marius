@@ -47,4 +47,4 @@ jspm_packages
 .yarn-integrity
 
 # Minified script
-app.min.js
+boundle.js
