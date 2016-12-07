@@ -17,5 +17,8 @@ module.exports = {
       { test: /\.js$/,
         loader: 'babel-loader',
       }]
-  }
+  },
+  resolve: {
+    extensions: ['', '.js']
+  },
 };
