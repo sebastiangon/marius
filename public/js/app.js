@@ -1,6 +1,8 @@
 import Box from './mystery_box.js';
+var Player;//import Player from './player.js';
 
 var game = new Phaser.Game(800,600,Phaser.AUTO,'',{preload:preload, create:create, update:update});
+var boxes;
 
 function preload(){
   game.load.image('background','../assets/background.png')
@@ -9,15 +11,23 @@ function preload(){
 
 function create(){
     game.physics.startSystem(Phaser.Physics.ARCADE);
-
     game.add.sprite(0,0,'background');
 
-    let boxes = game.add.group();
+    boxes = game.add.group();
     boxes.enableBody = true;
-    let box_1 = Box(boxes,50,100);
-    let box_2 = Box(boxes,200,100);
+
+    for (var i = 0; i < 8; i++) {
+      var box = Box(boxes,i*90 + 20,Math.floor(Math.random() * 400) + 1);
+    }
 }
 
+
 function update(){
+
+  game.physics.arcade.overlap(Player,boxes,hitBox,null,this);
+
+  function hitBox(Player,boxHitted){
+    boxHitted.hit(Player);
+  }
 
 }
