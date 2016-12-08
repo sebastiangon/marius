@@ -10,7 +10,7 @@ export default function createBox(group,x,y){
   _box.points = Math.floor((Math.random() * 1000) + 1);
 
   _box.hit =  (player) =>{
-    _box.points = Math.floor((Math.random() * 1000) + 1);
+  _box.points = Math.floor((Math.random() * 1000) + 1);
     console.log(_box.points);
     //Player.sumPoints(player,_box.points);
   }
