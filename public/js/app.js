@@ -24,10 +24,4 @@ function create(){
 
 function update(){
 
-  game.physics.arcade.overlap(Player,boxes,hitBox,null,this);
-
-  function hitBox(Player,boxHitted){
-    boxHitted.hit(Player);
-  }
-
 }
