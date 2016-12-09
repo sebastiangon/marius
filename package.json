@@ -6,6 +6,7 @@
   "scripts": {
     "start:prod": "node index.js",
     "test": "karma start",
+    "test:watch": "karma start --auto-watch --single-run false",
     "start": "webpack-dev-server -d --colors --port 3000 --content-base ./public"
   },
   "keywords": [
