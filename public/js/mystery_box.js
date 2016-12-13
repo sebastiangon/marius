@@ -12,7 +12,6 @@ export default function createBox(group,x,y){
   _box.hit =  (player) =>{
   _box.points = Math.floor((Math.random() * 1000) + 1);
     console.log(_box.points);
-    //Player.sumPoints(player,_box.points);
   }
 
   //each box listens its own clic so it can change its points
@@ -28,3 +27,6 @@ export default function createBox(group,x,y){
   }
 
 };
+//
+// Pasar objecots como parametros
+// pasar los random como parametros
