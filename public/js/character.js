@@ -1,17 +1,17 @@
 export default function character(game){
 
-  var _player = game.add.sprite(32,game.world.height - 150,'skull');
-  game.physics.arcade.enable(_player);
+  var _character = game.add.sprite(32,game.world.height - 150,'skull');
+  game.physics.arcade.enable(_character);
 
-  _player.body.bounce.y = 0.2;
-  _player.body.gravity.y = 300;
-  _player.body.collideWorldBounds = true;
+  _character.body.bounce.y = 0.8;
+  _character.body.gravity.y = 300;
+  _character.body.collideWorldBounds = true;
 
 
-  _player.animations.add('left', [0, 1, 2], 10, true);
-  _player.animations.add('right', [4, 5, 6], 10, true);
+  _character.animations.add('left',[9,10,11] , 12, true);
+  _character.animations.add('right',[3,4,5], 12, true);
 
   return {
-    character : _player
+    character : _character
   }
 };
