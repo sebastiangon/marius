@@ -8,8 +8,11 @@ export default function createBox(group,coordinates){
   _box.points = Math.floor((Math.random() * 1000) + 1);
 
   _box.hit =  (player,newPoints) =>{
-  _box.points = newPoints;
-    console.log(_box.points);
+    if(_box.body.touching.down)
+    {
+      _box.points = newPoints;
+      console.log(_box.points);
+    }
   }
 
   //each box listens its own clic so it can change its points

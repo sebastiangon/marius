@@ -60,7 +60,7 @@ function update(){
       character.frame = 1;
   }
 
-  if (cursors.up.isDown /*&& character.character.body.touching.down*/){
+  if (cursors.up.isDown && character.body.blocked.down){
       character.body.velocity.y = -350;
   }
 

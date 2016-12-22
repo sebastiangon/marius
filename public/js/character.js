@@ -3,7 +3,7 @@ export default function character(game){
   var _character = game.add.sprite(32,game.world.height - 150,'skull');
   game.physics.arcade.enable(_character);
 
-  _character.body.bounce.y = 0.8;
+  _character.body.bounce.y = 0.3;
   _character.body.gravity.y = 300;
   _character.body.collideWorldBounds = true;
 
