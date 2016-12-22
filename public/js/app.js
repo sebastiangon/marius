@@ -13,8 +13,15 @@ function preload(){
   game.load.image('background','../assets/background.png')
   game.load.image('mystery_box','../assets/mystery_box.png');
 
-  game.load.spritesheet('skull','../assets/characters/skull.png',32,32);
+  //characters
+  game.load.spritesheet('death','../assets/characters/gargoile.png',32,32);
   game.load.spritesheet('gargoile','../assets/characters/gargoile.png',32,32);
+  game.load.spritesheet('genie','../assets/characters/gargoile.png',32,32);
+  game.load.spritesheet('red','../assets/characters/gargoile.png',32,32);
+  game.load.spritesheet('shadow','../assets/characters/gargoile.png',32,32);
+  game.load.spritesheet('skull','../assets/characters/skull.png',32,32);
+  game.load.spritesheet('troll','../assets/characters/gargoile.png',32,32);
+  game.load.spritesheet('viking','../assets/characters/gargoile.png',32,32);
 }
 
 function create(){
@@ -25,43 +32,52 @@ function create(){
     boxes.enableBody = true;
 
     for (var i = 0; i < 8; i++) {
-      var box = Box(boxes,{
+      var box = Box(boxes,
+                    {
                           x: i*90 + 20,
                           y: Math.floor((Math.random() * 400) + 1)
-                        });
+                    },
+                    Math.floor((Math.random() * 1000) + 1)
+                    );
     }
 
     cursors = game.input.keyboard.createCursorKeys();
 
-    character = Character(game).character;
+    character = Character(game,"skull","Seba").character;
 }
 
 
 function update(){
 
+  var standingOnBox = false;
   game.physics.arcade.collide(character,boxes,hitBox);
 
   function hitBox(character,boxHitted){
-    boxHitted.hit(character,Math.floor((Math.random() * 1000) + 1));
+    if(boxHitted.body.touching.down)
+    {
+      character.sumPoints(boxHitted.points);
+      boxHitted.changePoints(Math.floor((Math.random() * 1000) + 1));
+    }else if(boxHitted.body.touching.up)
+    {
+      standingOnBox = true;
+    }
   }
 
   character.body.velocity.x = 0;
+  character.setLabelPosition();
 
   if (cursors.left.isDown){
-      character.body.velocity.x = -150;
-      character.animations.play('left');
+      character.moveLeft();
   }
   else if (cursors.right.isDown){
-      character.body.velocity.x = 150;
-      character.animations.play('right');
+      character.moveRight();
   }
   else{
-      character.animations.stop();
-      character.frame = 1;
+      character.dontMove();
   }
 
-  if (cursors.up.isDown && character.body.blocked.down){
-      character.body.velocity.y = -350;
+  if (cursors.up.isDown && (character.body.blocked.down || standingOnBox)){
+      character.moveUp();
   }
 
 }
