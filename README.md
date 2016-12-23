@@ -17,6 +17,24 @@ npm run start
 ```
 > This will start the project on http://localhost:3000
 
+## Commands
+
+### Running App
+```javascript
+npm run start
+```
+
+### Running Tests
+
+```javascript
+npm run test
+```
+
+> Interactive mode
+```javascript
+npm run test:watch
+```
+
 ## Stack
 
 - Static server is built upon [Hapi](http://hapijs.com/)
