@@ -1,16 +1,19 @@
-//import Player from '../js/player.js';
+export default function createBox(group,coordinates,initialPoints){
 
-export default function createBox(group,x,y){
-
-  var _box = group.create(x,y,'mystery_box');
+  var _box = group.create(coordinates.x,coordinates.y,'mystery_box');
 
   _box.enableBody = true;
   _box.body.immovable = true;
+  _box.points = initialPoints;
 
-  _box.points = Math.floor((Math.random() * 1000) + 1);
+  _box.changePoints = (newPoints) =>{
+    if(_box.body.touching.down)
+    {
+      _box.points = newPoints;
+    }
+  }
 
   return {
     box : _box
   }
-
 };
