@@ -2,11 +2,14 @@
 
 const Hapi = require('hapi');
 const chalk = require ('chalk');
+const socket = require('./server/socket.js');
+
 const log = console.log;
 
 const server = new Hapi.Server();
 server.connection({ port:3000 });
 //Defining routes
+socket.setup(server.listener);
 
 server.register(require('inert'),
   (err) => {
