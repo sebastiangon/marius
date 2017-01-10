@@ -48,3 +48,6 @@ jspm_packages
 
 # Minified script
 boundle.js
+
+#phaser min file
+public/js/phaser.min.js

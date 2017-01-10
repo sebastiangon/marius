@@ -1,5 +1,6 @@
 import Box from './mystery_box.js';
 import Character from './character.js';
+import Hud from './hud.js';
 import 'pixi.js'
 import 'p2';
 import  Phaser from 'phaser';
@@ -8,6 +9,11 @@ var game = new Phaser.Game(800,600,Phaser.AUTO,'',{preload:preload, create:creat
 var boxes;
 var character;
 var cursors;
+let hud;
+
+const gameState = {
+  score: 0,
+};
 
 function preload(){
   game.load.image('background','../assets/background.png')
@@ -44,6 +50,12 @@ function create(){
     cursors = game.input.keyboard.createCursorKeys();
 
     character = Character(game,"skull","Seba").character;
+    const style = {
+      font: 'bold 20pt Arial',
+      backgroundColor: 'red',
+    }
+
+    hud = new Hud(game, gameState);
 }
 
 
@@ -55,7 +67,9 @@ function update(){
   function hitBox(character,boxHitted){
     if(boxHitted.body.touching.down)
     {
-      character.sumPoints(boxHitted.points);
+      gameState.score += boxHitted.points;
+      hud.setScore(gameState.score);
+      // character.sumPoints(boxHitted.points);
       boxHitted.changePoints(Math.floor((Math.random() * 1000) + 1));
     }else if(boxHitted.body.touching.up)
     {
