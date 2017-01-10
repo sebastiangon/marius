@@ -1,5 +1,5 @@
 # Marius
-Game like Mario Bros, but with just one level where you have to earn much points as you can with your character.
+Game like Mario Bros, but with just one level where you have to earn as much points as you can with your character.
 
 ## Running server
 
