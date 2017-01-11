@@ -5,7 +5,8 @@ import 'pixi.js'
 import 'p2';
 import  Phaser from 'phaser';
 
-var game = new Phaser.Game(800,600,Phaser.AUTO,'',{preload:preload, create:create, update:update});
+var game = new Phaser.Game(800,600,Phaser.AUTO,'',{ preload:preload, create:create, update:update });
+var gameTime = new Phaser.Timer(game);
 var boxes;
 var character;
 var cursors;
@@ -31,9 +32,13 @@ function preload(){
 }
 
 function create(){
+    hud = new Hud(game, gameState);
+    gameTime.loop(1000, hud.setTime(gameTime.seconds));
+    console.log(gameTime);
+    gameTime.start();
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.add.sprite(0,0,'background');
-
+    console.log(gameTime);
     boxes = game.add.group();
     boxes.enableBody = true;
 
@@ -54,13 +59,10 @@ function create(){
       font: 'bold 20pt Arial',
       backgroundColor: 'red',
     }
-
-    hud = new Hud(game, gameState);
 }
 
 
 function update(){
-
   var standingOnBox = false;
   game.physics.arcade.collide(character,boxes,hitBox);
 
@@ -69,6 +71,7 @@ function update(){
     {
       gameState.score += boxHitted.points;
       hud.setScore(gameState.score);
+
       // character.sumPoints(boxHitted.points);
       boxHitted.changePoints(Math.floor((Math.random() * 1000) + 1));
     }else if(boxHitted.body.touching.up)

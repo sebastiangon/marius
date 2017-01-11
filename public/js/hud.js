@@ -9,11 +9,22 @@ class hud {
 
     this.getScoreElement = this.getScoreElement.bind(this);
     this.setScore = this.setScore.bind(this);
+    this.setTime = this.setTime.bind(this);
 
+    this.timeEl = game.add.text(game.canvas.width - 100, 20, 'Time: ' + game.time.elapsed, style);
+    console.log(game);
   }
 
   buildScore(score) {
     return `Score: ${score}`;
+  }
+
+  buildTime(time) {
+    return `Time: ${time}`;
+  }
+
+  setTime(time) {
+    this.timeEl.text = this.buildTime(time);
   }
 
   setScore(score) {
