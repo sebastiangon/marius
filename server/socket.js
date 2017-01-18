@@ -1,15 +1,15 @@
 const io = require('socket.io');
+const events = require('./events.js');
+
 
 module.exports = {
   setup: function(server) {
     const socketListener = io(server);
 
     socketListener.on('connection', (socket) => {
-      console.log('this sockete have connected:', socket.id);
-      socket.on('goku', () => {
-        console.log('Ping from client');
-        socketListener.emit('add');
-      });
+      events.onConnection(socket,socketListener);
+      events.onDisconnection(socket,socketListener);
+      events.hitBox(socket,socketListener);
     });
   }
 }

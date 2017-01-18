@@ -11,6 +11,7 @@ server.connection({ port:3000 });
 //Defining routes
 socket.setup(server.listener);
 
+
 server.register(require('inert'),
   (err) => {
     if (err) {

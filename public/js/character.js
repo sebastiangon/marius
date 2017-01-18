@@ -18,7 +18,7 @@ export default function character(game,avatar,name){
                                           fontWeight : "900",
                                           fill: "#FFFFFF",
                                           wordWrap: true,
-                                          wordWrapWidth: _character.width,
+                                          wordWrapWidth: _character.width + 25,
                                           align: "center",
                                         });
 
