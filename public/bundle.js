@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "aefdb32406dfeea9fa6b"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "a4676fad69dff333034b"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -593,15 +593,19 @@
 
 	var _character2 = _interopRequireDefault(_character);
 
-	var _socket = __webpack_require__(3);
+	var _enemy = __webpack_require__(3);
+
+	var _enemy2 = _interopRequireDefault(_enemy);
+
+	var _socket = __webpack_require__(4);
 
 	var _socket2 = _interopRequireDefault(_socket);
 
-	__webpack_require__(4);
+	__webpack_require__(5);
 
-	__webpack_require__(6);
+	__webpack_require__(7);
 
-	var _phaser = __webpack_require__(8);
+	var _phaser = __webpack_require__(9);
 
 	var _phaser2 = _interopRequireDefault(_phaser);
 
@@ -614,6 +618,8 @@
 	var socket;
 	var _sprite;
 	var _name;
+	var _boxes_coordinates;
+	var enemies = [];
 
 	function preload() {
 	    game.load.image('background', '../assets/background.png');
@@ -632,31 +638,57 @@
 	function create() {
 
 	    socket = (0, _socket2.default)().socket;
-	    socket.on('onPlayersUpdated', function (msg) {
-	        console.log('players updated');
-	        console.log(msg);
+	    socket.on('onPlayerConnected', function (players) {
+	        console.log('players joined');
+	        //Add to enemies everyone but me
+	        enemies = players.filter(function (player, i, array) {
+	            return player.name != _name;
+	        });
+
+	        //If the enemy is new, we define him a spritesheet
+	        enemies.forEach(function (enemy, i) {
+	            if (enemy.spritesheet == null) {
+	                enemy.spritesheet = (0, _enemy2.default)(game, enemy.character_sprite, enemy.name).enemy;
+	                console.log('enemy ', enemy);
+	            }
+	        });
+	    });
+
+	    socket.on('onPlayerDisconected', function (players) {
+	        console.log('players left');
+	        //Add to enemies everyone but me
+	        enemies = players.filter(function (player, i, array) {
+	            return player.name != _name;
+	        });
+	        console.log(enemies);
 	    });
 
 	    socket.on('selfInfoAssigned', function (msg) {
-	        console.log('selfInfoAssigned');
-	        _sprite = msg.character_sprite;
-	        _name = msg.name;
+	        console.log('selfInfoAssigned', msg);
+	        _sprite = msg.new_player.character_sprite;
+	        _name = msg.new_player.name;
+	        _boxes_coordinates = msg.boxes_coordinates;
 	        character = (0, _character2.default)(game, _sprite, _name).character;
+
+	        boxes = game.add.group();
+	        boxes.enableBody = true;
+
+	        for (var i = 0; i < 8; i++) {
+	            (0, _mystery_box2.default)(boxes, _boxes_coordinates[i], Math.floor(Math.random() * 1000 + 1));
+	        }
+	    });
+
+	    socket.on('receiveEnemyPosition', function (playerInfo) {
+	        enemies.forEach(function (enemy, i) {
+	            if (enemy.name == playerInfo.player_name && enemy.spritesheet != null) {
+	                enemy.spritesheet.updatePosition(playerInfo.x, playerInfo.y, playerInfo.frame);
+	                console.log('enemy position updated', enemy);
+	            }
+	        });
 	    });
 
 	    game.physics.startSystem(_phaser2.default.Physics.ARCADE);
 	    game.add.sprite(0, 0, 'background');
-
-	    boxes = game.add.group();
-	    boxes.enableBody = true;
-
-	    for (var i = 0; i < 8; i++) {
-	        var box = (0, _mystery_box2.default)(boxes, {
-	            x: i * 90 + 20,
-	            y: Math.floor(Math.random() * 400 + 1)
-	        }, Math.floor(Math.random() * 1000 + 1));
-	    }
-
 	    cursors = game.input.keyboard.createCursorKeys();
 	}
 
@@ -672,6 +704,8 @@
 	            }
 	        };
 
+	        enemies.forEach(function (enemy, i) {});
+
 	        var standingOnBox = false;
 	        game.physics.arcade.collide(character, boxes, hitBox);
 
@@ -680,14 +714,30 @@
 
 	        if (cursors.left.isDown) {
 	            character.moveLeft();
+	            socket.emit('emitPosition', {
+	                x: character.world.x, y: character.world.y, frame: character.frame, player_name: _name, player_sprite: _sprite
+	            });
 	        } else if (cursors.right.isDown) {
 	            character.moveRight();
+	            socket.emit('emitPosition', {
+	                x: character.world.x, y: character.world.y, frame: character.frame, player_name: _name, player_sprite: _sprite
+	            });
 	        } else {
 	            character.dontMove();
 	        }
 
 	        if (cursors.up.isDown && (character.body.blocked.down || standingOnBox)) {
 	            character.moveUp();
+	            socket.emit('emitPosition', {
+	                x: character.world.x, y: character.world.y, frame: character.frame, player_name: _name, player_sprite: _sprite
+	            });
+	        }
+
+	        //If im not standing on floor or on a box, then im falling or jumping, so i have to tell everybody im moving
+	        if (!(character.body.blocked.down || standingOnBox)) {
+	            socket.emit('emitPosition', {
+	                x: character.world.x, y: character.world.y, frame: character.frame, player_name: _name, player_sprite: _sprite
+	            });
 	        }
 	    }
 	}
@@ -791,6 +841,49 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.default = enemy;
+	function enemy(game, sprite, name) {
+
+	  var _enemy = game.add.sprite(32, game.world.height - 150, sprite);
+
+	  _enemy.world.x = 0;
+	  _enemy.world.y = 0;
+	  _enemy.frame = 0;
+
+	  _enemy.labelName = game.add.text(_enemy.x, _enemy.y + 50, name, { font: "10px Arial",
+	    fontWeight: "900",
+	    fill: "#FFFFFF",
+	    wordWrap: true,
+	    wordWrapWidth: _enemy.width + 25,
+	    align: "center"
+	  });
+
+	  _enemy.setLabelPosition = function () {
+	    _enemy.labelName.x = _enemy.x;
+	    _enemy.labelName.y = _enemy.y - 20;
+	  };
+
+	  _enemy.updatePosition = function (x, y, frame) {
+	    _enemy.x = x;
+	    _enemy.y = y;
+	    _enemy.frame = frame;
+	    _enemy.setLabelPosition();
+	  };
+
+	  return {
+	    enemy: _enemy
+	  };
+	};
+
+/***/ },
+/* 4 */
+/***/ function(module, exports) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 	exports.default = socket;
 	function socket() {
 
@@ -802,16 +895,16 @@
 	};
 
 /***/ },
-/* 4 */
+/* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
 
-	module.exports = global["PIXI"] = __webpack_require__(5);
+	module.exports = global["PIXI"] = __webpack_require__(6);
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 5 */
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -9937,16 +10030,16 @@
 	}).call(this);
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
 
-	module.exports = global["p2"] = __webpack_require__(7);
+	module.exports = global["p2"] = __webpack_require__(8);
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var require;var require;/**
@@ -23564,16 +23657,16 @@
 	});
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
 
-	module.exports = global["Phaser"] = __webpack_require__(9);
+	module.exports = global["Phaser"] = __webpack_require__(10);
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -103937,10 +104030,10 @@
 	* "What matters in this life is not what we do but what we do for others, the legacy we leave and the imprint we make." - Eric Meyer
 	*/
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(10)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)))
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports) {
 
 	'use strict';

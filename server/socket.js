@@ -9,6 +9,7 @@ module.exports = {
     socketListener.on('connection', (socket) => {
       events.onConnection(socket,socketListener);
       events.onDisconnection(socket,socketListener);
+      events.onEmitPosition(socket,socketListener);
       events.hitBox(socket,socketListener);
     });
   }
