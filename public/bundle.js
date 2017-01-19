@@ -65,7 +65,7 @@
 /******/ 	}
 /******/ 	
 /******/ 	var hotApplyOnUpdate = true;
-/******/ 	var hotCurrentHash = "1085b52068b756ea4e71"; // eslint-disable-line no-unused-vars
+/******/ 	var hotCurrentHash = "0f45748ab7e1eb63f4b1"; // eslint-disable-line no-unused-vars
 /******/ 	var hotCurrentModuleData = {};
 /******/ 	var hotCurrentParents = []; // eslint-disable-line no-unused-vars
 /******/ 	
@@ -601,17 +601,22 @@
 
 	var _socket2 = _interopRequireDefault(_socket);
 
-	__webpack_require__(5);
+	var _hud = __webpack_require__(5);
 
-	__webpack_require__(7);
+	var _hud2 = _interopRequireDefault(_hud);
 
-	var _phaser = __webpack_require__(9);
+	__webpack_require__(6);
+
+	__webpack_require__(8);
+
+	var _phaser = __webpack_require__(10);
 
 	var _phaser2 = _interopRequireDefault(_phaser);
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	var game = new _phaser2.default.Game(800, 600, _phaser2.default.AUTO, '', { preload: preload, create: create, update: update });
+	var gameTime = new _phaser2.default.Timer(game);
 	var boxes;
 	var character = null;
 	var cursors;
@@ -622,6 +627,11 @@
 	var enemies = [];
 
 	var last_coordinates = null;
+	var hud = void 0;
+
+	var gameState = {
+	    score: 0
+	};
 
 	function preload() {
 	    game.load.image('background', '../assets/background.png');
@@ -679,7 +689,6 @@
 	    });
 
 	    socket.on('receiveEnemyPosition', function (playerInfo) {
-	        console.log('new position', playerInfo.x);
 	        enemies.forEach(function (enemy, i) {
 	            if (enemy.name == playerInfo.player_name && enemy.spritesheet != null) {
 	                enemy.spritesheet.updatePosition(playerInfo.x, playerInfo.y, playerInfo.frame);
@@ -687,24 +696,35 @@
 	        });
 	    });
 
+	    hud = new _hud2.default(game, gameState);
+	    gameTime.loop(1000, hud.setTime(gameTime.seconds));
+	    gameTime.start();
+	    game.physics.startSystem(_phaser2.default.Physics.ARCADE);
+	    game.add.sprite(0, 0, 'background');
+	    boxes = game.add.group();
+	    boxes.enableBody = true;
+
 	    game.physics.startSystem(_phaser2.default.Physics.ARCADE);
 	    game.add.sprite(0, 0, 'background');
 	    cursors = game.input.keyboard.createCursorKeys();
+
+	    var style = {
+	        font: 'bold 20pt Arial',
+	        backgroundColor: 'red'
+	    };
 	}
 
 	function update() {
 	    if (character != null) {
 	        var hitBox = function hitBox(character, boxHitted) {
 	            if (boxHitted.body.touching.down) {
-	                socket.emit('hitbox');
-	                character.sumPoints(boxHitted.points);
+	                gameState.score += boxHitted.points;
+	                hud.setScore(gameState.score);
 	                boxHitted.changePoints(Math.floor(Math.random() * 1000 + 1));
 	            } else if (boxHitted.body.touching.up) {
 	                standingOnBox = true;
 	            }
 	        };
-
-	        enemies.forEach(function (enemy, i) {});
 
 	        var standingOnBox = false;
 	        game.physics.arcade.collide(character, boxes, hitBox);
@@ -725,14 +745,11 @@
 	        }
 
 	        var actual_coordinates = { 'x': character.world.x, 'y': character.world.y };
-
 	        if (last_coordinates != null && (actual_coordinates.x != last_coordinates.x || actual_coordinates.y != last_coordinates.y)) {
-	            console.log('emmiting');
 	            socket.emit('emitPosition', {
 	                x: character.world.x, y: character.world.y, frame: character.frame, player_name: _name, player_sprite: _sprite
 	            });
 	        }
-
 	        last_coordinates = actual_coordinates;
 	    }
 	}
@@ -891,15 +908,81 @@
 
 /***/ },
 /* 5 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var hud = function () {
+	  function hud(game, hudInfo) {
+	    _classCallCheck(this, hud);
+
+	    var style = {
+	      font: 'bold 16pt Arial',
+	      fill: '#ffffff'
+	    };
+	    var score = this.buildScore(hudInfo.score);
+	    this.scoreEl = game.add.text(20, 20, score, style);
+
+	    this.getScoreElement = this.getScoreElement.bind(this);
+	    this.setScore = this.setScore.bind(this);
+	    this.setTime = this.setTime.bind(this);
+
+	    this.timeEl = game.add.text(game.canvas.width - 100, 20, 'Time: ' + game.time.elapsed, style);
+	    console.log(game);
+	  }
+
+	  _createClass(hud, [{
+	    key: 'buildScore',
+	    value: function buildScore(score) {
+	      return 'Score: ' + score;
+	    }
+	  }, {
+	    key: 'buildTime',
+	    value: function buildTime(time) {
+	      return 'Time: ' + time;
+	    }
+	  }, {
+	    key: 'setTime',
+	    value: function setTime(time) {
+	      this.timeEl.text = this.buildTime(time);
+	    }
+	  }, {
+	    key: 'setScore',
+	    value: function setScore(score) {
+	      console.log(this.scoreEl);
+	      this.scoreEl.text = this.buildScore(score);
+	    }
+	  }, {
+	    key: 'getScoreElement',
+	    value: function getScoreElement() {
+	      return this.scoreEl;
+	    }
+	  }]);
+
+	  return hud;
+	}();
+
+	exports.default = hud;
+
+/***/ },
+/* 6 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
 
-	module.exports = global["PIXI"] = __webpack_require__(6);
+	module.exports = global["PIXI"] = __webpack_require__(7);
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 6 */
+/* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/**
@@ -10025,16 +10108,16 @@
 	}).call(this);
 
 /***/ },
-/* 7 */
+/* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
 
-	module.exports = global["p2"] = __webpack_require__(8);
+	module.exports = global["p2"] = __webpack_require__(9);
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 8 */
+/* 9 */
 /***/ function(module, exports, __webpack_require__) {
 
 	var require;var require;/**
@@ -23652,16 +23735,16 @@
 	});
 
 /***/ },
-/* 9 */
+/* 10 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(global) {"use strict";
 
-	module.exports = global["Phaser"] = __webpack_require__(10);
+	module.exports = global["Phaser"] = __webpack_require__(11);
 	/* WEBPACK VAR INJECTION */}.call(exports, (function() { return this; }())))
 
 /***/ },
-/* 10 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	/* WEBPACK VAR INJECTION */(function(process) {/**
@@ -104025,10 +104108,10 @@
 	* "What matters in this life is not what we do but what we do for others, the legacy we leave and the imprint we make." - Eric Meyer
 	*/
 
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11)))
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(12)))
 
 /***/ },
-/* 11 */
+/* 12 */
 /***/ function(module, exports) {
 
 	'use strict';

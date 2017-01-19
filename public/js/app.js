@@ -2,21 +2,28 @@ import Box from './mystery_box.js';
 import Character from './character.js';
 import Enemy from './enemy.js';
 import Socket from './socket.js';
+import Hud from './hud.js';
 import 'pixi.js'
 import 'p2';
 import  Phaser from 'phaser';
 
-var game = new Phaser.Game(800,600,Phaser.AUTO,'',{preload:preload, create:create, update:update});
-var boxes;
-var character = null;
-var cursors;
-var socket;
-var _sprite;
-var _name;
-var _boxes_coordinates;
-var enemies = [];
+let game = new Phaser.Game(800,600,Phaser.AUTO,'',{ preload:preload, create:create, update:update });
+let gameTime = new Phaser.Timer(game);
+let boxes;
+let character = null;
+let cursors;
+let socket;
+let _sprite;
+let _name;
+let _boxes_coordinates;
+let enemies = [];
 
-var last_coordinates = null;
+let last_coordinates = null;
+let hud;
+
+const gameState = {
+  score: 0,
+};
 
 function preload(){
   game.load.image('background','../assets/background.png')
@@ -83,37 +90,43 @@ function create(){
         });
     });
 
-
+    hud = new Hud(game, gameState);
+    gameTime.loop(1000, hud.setTime(gameTime.seconds));
+    gameTime.start();
+    game.physics.startSystem(Phaser.Physics.ARCADE);
+    game.add.sprite(0,0,'background');
+    boxes = game.add.group();
+    boxes.enableBody = true;
 
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.add.sprite(0,0,'background');
     cursors = game.input.keyboard.createCursorKeys();
 
+
+    const style = {
+      font: 'bold 20pt Arial',
+      backgroundColor: 'red',
+    }
 }
 
 
 function update(){
   if(character != null){
 
+  var standingOnBox = false;
+  game.physics.arcade.collide(character,boxes,hitBox);
 
-    enemies.forEach((enemy,i)=>{
-    });
-
-    var standingOnBox = false;
-    game.physics.arcade.collide(character,boxes,hitBox);
-
-    function hitBox(character,boxHitted){
+  function hitBox(character,boxHitted){
       if(boxHitted.body.touching.down)
       {
-        socket.emit('hitbox');
-        character.sumPoints(boxHitted.points);
+        gameState.score += boxHitted.points;
+        hud.setScore(gameState.score);
         boxHitted.changePoints(Math.floor((Math.random() * 1000) + 1));
       }else if(boxHitted.body.touching.up)
       {
         standingOnBox = true;
       }
     }
-
     character.body.velocity.x = 0;
     character.setLabelPosition();
 
@@ -134,7 +147,11 @@ function update(){
     let actual_coordinates = { 'x': character.world.x, 'y':character.world.y };
     if(last_coordinates != null && (actual_coordinates.x != last_coordinates.x || actual_coordinates.y != last_coordinates.y)){
       socket.emit('emitPosition',{
-        x: character.world.x,y: character.world.y,frame: character.frame,player_name : _name,player_sprite: _sprite,
+        x: character.world.x,
+        y: character.world.y,
+        frame: character.frame,
+        player_name : _name,
+        player_sprite: _sprite,
       });
     }
     last_coordinates = actual_coordinates;
