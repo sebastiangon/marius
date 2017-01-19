@@ -16,6 +16,8 @@ var _name;
 var _boxes_coordinates;
 var enemies = [];
 
+var last_coordinates = null;
+
 function preload(){
   game.load.image('background','../assets/background.png')
   game.load.image('mystery_box','../assets/mystery_box.png');
@@ -44,7 +46,6 @@ function create(){
       enemies.forEach((enemy,i)=>{
           if(enemy.spritesheet == null){
             enemy.spritesheet = Enemy(game,enemy.character_sprite,enemy.name).enemy;
-            console.log('enemy ',enemy);
           }
       });
     });
@@ -55,8 +56,6 @@ function create(){
       enemies = players.filter(function(player,i,array){
           return player.name != _name;
       });
-      console.log(enemies);
-
     });
 
     socket.on('selfInfoAssigned',function(msg){
@@ -80,7 +79,6 @@ function create(){
         enemies.forEach((enemy,i)=>{
           if(enemy.name == playerInfo.player_name && enemy.spritesheet != null){
             enemy.spritesheet.updatePosition(playerInfo.x,playerInfo.y,playerInfo.frame);
-            console.log('enemy position updated',enemy);
           }
         });
     });
@@ -121,15 +119,9 @@ function update(){
 
     if (cursors.left.isDown){
         character.moveLeft();
-        socket.emit('emitPosition',{
-          x: character.world.x,y: character.world.y,frame: character.frame,player_name : _name,player_sprite: _sprite,
-        });
     }
     else if (cursors.right.isDown){
         character.moveRight();
-        socket.emit('emitPosition',{
-          x: character.world.x,y: character.world.y,frame: character.frame,player_name : _name,player_sprite: _sprite,
-        });
     }
     else{
         character.dontMove();
@@ -137,16 +129,14 @@ function update(){
 
     if (cursors.up.isDown && (character.body.blocked.down || standingOnBox)){
         character.moveUp();
-        socket.emit('emitPosition',{
-          x: character.world.x,y: character.world.y,frame: character.frame,player_name : _name,player_sprite: _sprite,
-        });
     }
 
-    //If im not standing on floor or on a box, then im falling or jumping, so i have to tell everybody im moving
-    if(!(character.body.blocked.down || standingOnBox)){
+    let actual_coordinates = { 'x': character.world.x, 'y':character.world.y };
+    if(last_coordinates != null && (actual_coordinates.x != last_coordinates.x || actual_coordinates.y != last_coordinates.y)){
       socket.emit('emitPosition',{
         x: character.world.x,y: character.world.y,frame: character.frame,player_name : _name,player_sprite: _sprite,
       });
     }
+    last_coordinates = actual_coordinates;
   }
 }
