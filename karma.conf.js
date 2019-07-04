@@ -7,7 +7,6 @@ module.exports = function(config) {
     basePath: '',
     frameworks: ['jasmine'],
 
-
     // list of files / patterns to load in the browser
     files: [
       {pattern: 'public/test/*.test.js', watched: false},
